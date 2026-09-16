@@ -52,4 +52,43 @@ router.post(
   })
 );
 
+const STOCK_EXPRESSION = `COALESCE(SUM(CASE WHEN m.type = 'in' THEN m.quantity WHEN m.type = 'out' THEN -m.quantity ELSE 0 END), 0)::int`;
+
+router.get(
+  '/products',
+  asyncHandler(async (req, res) => {
+    const { search, lowStock } = req.query;
+    const params = [];
+
+    let whereClause = '';
+    if (search) {
+      params.push(`%${search}%`);
+      whereClause = `WHERE p.name ILIKE $${params.length} OR p.sku ILIKE $${params.length}`;
+    }
+
+    const havingClause = lowStock === 'true'
+      ? `HAVING ${STOCK_EXPRESSION} <= p.reorder_threshold`
+      : '';
+
+    const sql = `
+      SELECT
+        p.id,
+        p.sku,
+        p.name,
+        p.reorder_threshold,
+        p.created_at,
+        ${STOCK_EXPRESSION} AS stock
+      FROM products p
+      LEFT JOIN movements m ON m.product_id = p.id
+      ${whereClause}
+      GROUP BY p.id
+      ${havingClause}
+      ORDER BY p.name
+    `;
+
+    const result = await pool.query(sql, params);
+    res.json(result.rows);
+  })
+);
+
 module.exports = router;
