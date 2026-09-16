@@ -135,6 +135,79 @@ router.get(
   })
 );
 
+function validateMovementInput(body) {
+  const { type, quantity, note } = body;
+
+  if (type !== 'in' && type !== 'out') {
+    throw badRequest("Type must be 'in' or 'out'", { field: 'type' });
+  }
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    throw badRequest('Quantity must be a positive integer', { field: 'quantity' });
+  }
+  if (note !== undefined && note !== null && typeof note !== 'string') {
+    throw badRequest('Note must be a string', { field: 'note' });
+  }
+
+  return { type, quantity, note: note ?? null };
+}
+
+router.post(
+  '/products/:id/movements',
+  asyncHandler(async (req, res) => {
+    const id = parseProductId(req.params.id);
+    const { type, quantity, note } = validateMovementInput(req.body);
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Locks the product row so a concurrent 'out' movement for the same
+      // product has to wait for this transaction to commit or roll back
+      // before it can read stock or insert its own movement.
+      const productResult = await client.query(
+        'SELECT id FROM products WHERE id = $1 FOR UPDATE',
+        [id]
+      );
+
+      if (productResult.rowCount === 0) {
+        throw notFound(`Product ${id} not found`, { field: 'id' });
+      }
+
+      const stockResult = await client.query(
+        `SELECT ${STOCK_EXPRESSION} AS stock
+         FROM products p
+         LEFT JOIN movements m ON m.product_id = p.id
+         WHERE p.id = $1
+         GROUP BY p.id`,
+        [id]
+      );
+      const currentStock = stockResult.rows[0].stock;
+
+      if (type === 'out' && quantity > currentStock) {
+        throw conflict(`Only ${currentStock} available`, {
+          field: 'quantity',
+          details: { available: currentStock },
+        });
+      }
+
+      const insertResult = await client.query(
+        `INSERT INTO movements (product_id, type, quantity, note)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, product_id, type, quantity, note, created_at`,
+        [id, type, quantity, note]
+      );
+
+      await client.query('COMMIT');
+      res.status(201).json(insertResult.rows[0]);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  })
+);
+
 router.get(
   '/products/:id/stock',
   asyncHandler(async (req, res) => {
