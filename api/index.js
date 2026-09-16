@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { notFound } = require('./lib/errors');
 const errorHandler = require('./middleware/errorHandler');
+const productsRouter = require('./routes/products');
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use('/api', productsRouter);
 
 // Catch-all for unmatched routes — keeps the same error shape as everything else.
 app.use((req, res, next) => {
