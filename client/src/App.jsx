@@ -1,8 +1,13 @@
+import { Routes, Route } from 'react-router-dom';
+import ProductListPage from './pages/ProductListPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+
 function App() {
   return (
-    <div>
-      <h1>Inventory Manager</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<ProductListPage />} />
+      <Route path="/products/:id" element={<ProductDetailPage />} />
+    </Routes>
   );
 }
 
