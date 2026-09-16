@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchProducts } from '../api';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import AddProductModal from '../components/AddProductModal';
 
 function ProductRow({ product }) {
   const isLowStock = product.stock <= product.reorder_threshold;
@@ -27,6 +28,8 @@ export default function ProductListPage() {
   const [products, setProducts] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [refreshIndex, setRefreshIndex] = useState(0);
 
   const debouncedSearch = useDebouncedValue(searchInput, 300);
 
@@ -51,13 +54,23 @@ export default function ProductListPage() {
       });
 
     return () => controller.abort();
-  }, [debouncedSearch, lowStockOnly]);
+  }, [debouncedSearch, lowStockOnly, refreshIndex]);
 
   const isFiltered = debouncedSearch.trim() !== '' || lowStockOnly;
 
+  function handleProductCreated() {
+    setIsAddModalOpen(false);
+    setRefreshIndex((i) => i + 1);
+  }
+
   return (
     <div className="page">
-      <h1>Products</h1>
+      <div className="page-header">
+        <h1>Products</h1>
+        <button type="button" className="primary" onClick={() => setIsAddModalOpen(true)}>
+          Add product
+        </button>
+      </div>
 
       <div className="toolbar">
         <input
@@ -105,6 +118,13 @@ export default function ProductListPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {isAddModalOpen && (
+        <AddProductModal
+          onClose={() => setIsAddModalOpen(false)}
+          onCreated={handleProductCreated}
+        />
       )}
     </div>
   );
