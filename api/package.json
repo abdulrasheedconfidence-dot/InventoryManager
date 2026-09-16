@@ -4,7 +4,9 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "db:apply-schema": "node scripts/apply-schema.js",
+    "db:verify-schema": "node scripts/verify-schema.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
