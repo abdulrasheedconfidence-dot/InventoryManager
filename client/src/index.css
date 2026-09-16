@@ -214,3 +214,76 @@ button.primary:hover:not(:disabled) {
   gap: 0.6rem;
   margin-top: 1.4rem;
 }
+
+.product-sku {
+  margin: 0.2rem 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.product-summary {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.75rem;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.summary-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #666;
+}
+
+.summary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.movement-form {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.movement-form h2 {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.movement-form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.movement-form-row .field {
+  flex: 1;
+}
+
+.movement-form select {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.movement-in {
+  color: #1a7f37;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.movement-out {
+  color: #a12622;
+  font-weight: 600;
+  text-transform: capitalize;
+}

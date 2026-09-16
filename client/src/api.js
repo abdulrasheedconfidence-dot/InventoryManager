@@ -1,7 +1,8 @@
 export class ApiError extends Error {
-  constructor(message, { field, details } = {}) {
+  constructor(message, { status, field, details } = {}) {
     super(message);
     this.name = 'ApiError';
+    this.status = status;
     this.field = field;
     this.details = details;
   }
@@ -13,6 +14,7 @@ async function parseResponse(res) {
   if (!res.ok) {
     const err = body?.error;
     throw new ApiError(err?.message || 'Request failed', {
+      status: res.status,
       field: err?.field,
       details: err?.details,
     });
@@ -35,6 +37,20 @@ export async function createProduct({ sku, name, reorder_threshold }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sku, name, reorder_threshold }),
+  });
+  return parseResponse(res);
+}
+
+export async function fetchProduct(id, { signal } = {}) {
+  const res = await fetch(`/api/products/${id}`, { signal });
+  return parseResponse(res);
+}
+
+export async function createMovement(id, { type, quantity, note }) {
+  const res = await fetch(`/api/products/${id}/movements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, quantity, note }),
   });
   return parseResponse(res);
 }
