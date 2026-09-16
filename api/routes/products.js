@@ -1,11 +1,19 @@
 const express = require('express');
 const pool = require('../lib/db');
 const asyncHandler = require('../lib/asyncHandler');
-const { badRequest, conflict } = require('../lib/errors');
+const { badRequest, conflict, notFound } = require('../lib/errors');
 
 const router = express.Router();
 
 const UNIQUE_VIOLATION = '23505';
+
+function parseProductId(rawId) {
+  const id = Number(rawId);
+  if (!Number.isInteger(id)) {
+    throw badRequest('Invalid product id', { field: 'id' });
+  }
+  return id;
+}
 
 function validateProductInput(body) {
   const { sku, name, reorder_threshold } = body;
@@ -88,6 +96,64 @@ router.get(
 
     const result = await pool.query(sql, params);
     res.json(result.rows);
+  })
+);
+
+router.get(
+  '/products/:id',
+  asyncHandler(async (req, res) => {
+    const id = parseProductId(req.params.id);
+
+    const [productResult, movementsResult] = await Promise.all([
+      pool.query(
+        `SELECT
+           p.id, p.sku, p.name, p.reorder_threshold, p.created_at,
+           ${STOCK_EXPRESSION} AS stock
+         FROM products p
+         LEFT JOIN movements m ON m.product_id = p.id
+         WHERE p.id = $1
+         GROUP BY p.id`,
+        [id]
+      ),
+      pool.query(
+        `SELECT id, product_id, type, quantity, note, created_at
+         FROM movements
+         WHERE product_id = $1
+         ORDER BY created_at DESC`,
+        [id]
+      ),
+    ]);
+
+    if (productResult.rowCount === 0) {
+      throw notFound(`Product ${id} not found`, { field: 'id' });
+    }
+
+    res.json({
+      ...productResult.rows[0],
+      movements: movementsResult.rows,
+    });
+  })
+);
+
+router.get(
+  '/products/:id/stock',
+  asyncHandler(async (req, res) => {
+    const id = parseProductId(req.params.id);
+
+    const result = await pool.query(
+      `SELECT ${STOCK_EXPRESSION} AS stock
+       FROM products p
+       LEFT JOIN movements m ON m.product_id = p.id
+       WHERE p.id = $1
+       GROUP BY p.id`,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      throw notFound(`Product ${id} not found`, { field: 'id' });
+    }
+
+    res.json({ stock: result.rows[0].stock });
   })
 );
 
