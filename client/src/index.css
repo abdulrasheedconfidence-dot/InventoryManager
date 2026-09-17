@@ -2,8 +2,13 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
+  overflow-x: hidden;
   font-family: system-ui, -apple-system, sans-serif;
   color: #1a1a1a;
   background: #fafafa;
@@ -13,6 +18,7 @@ body {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  overflow-x: hidden;
 }
 
 h1 {
