@@ -287,3 +287,51 @@ button.primary:hover:not(:disabled) {
   font-weight: 600;
   text-transform: capitalize;
 }
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 1.25rem 1rem;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .toolbar {
+    gap: 0.75rem;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .product-summary {
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .movement-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal {
+    padding: 1.1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}

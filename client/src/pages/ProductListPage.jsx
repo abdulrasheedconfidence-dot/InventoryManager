@@ -103,21 +103,23 @@ export default function ProductListPage() {
       )}
 
       {!isLoading && !error && products && products.length > 0 && (
-        <table className="products-table">
-          <thead>
-            <tr>
-              <th>SKU</th>
-              <th>Name</th>
-              <th>Current stock</th>
-              <th>Reorder threshold</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <ProductRow key={product.id} product={product} />
-            ))}
-          </tbody>
-        </table>
+        <div className="table-scroll">
+          <table className="products-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Name</th>
+                <th>Current stock</th>
+                <th>Reorder threshold</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <ProductRow key={product.id} product={product} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {isAddModalOpen && (

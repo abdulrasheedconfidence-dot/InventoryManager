@@ -88,28 +88,30 @@ export default function ProductDetailPage() {
           {product.movements.length === 0 ? (
             <p className="status">No movements recorded yet.</p>
           ) : (
-            <table className="products-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Quantity</th>
-                  <th>Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                {product.movements.map((m) => (
-                  <tr key={m.id}>
-                    <td>{formatDate(m.created_at)}</td>
-                    <td className={m.type === 'in' ? 'movement-in' : 'movement-out'}>
-                      {m.type}
-                    </td>
-                    <td>{m.quantity}</td>
-                    <td>{m.note || '—'}</td>
+            <div className="table-scroll">
+              <table className="products-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Note</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {product.movements.map((m) => (
+                    <tr key={m.id}>
+                      <td>{formatDate(m.created_at)}</td>
+                      <td className={m.type === 'in' ? 'movement-in' : 'movement-out'}>
+                        {m.type}
+                      </td>
+                      <td>{m.quantity}</td>
+                      <td>{m.note || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
